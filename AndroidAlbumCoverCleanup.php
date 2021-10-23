@@ -8,6 +8,11 @@ class AndroidAlbumCoverCleanup {
     private string $directory;
 
     /**
+     * @var bool
+     */
+    private bool $dryRun = false;
+
+    /**
      * @var array
      */
     private array $wrongFiles = [];
@@ -34,11 +39,13 @@ class AndroidAlbumCoverCleanup {
 
     /**
      * @param string $directory
+     * @param bool $dryRun = false | optional
      * @return bool
      */
-    public function run(string $directory): bool
+    public function run(string $directory, bool $dryRun = false): bool
     {
         $this->directory = $directory;
+        $this->dryRun = $dryRun;
 
         echo PHP_EOL;
         if (strlen(trim($this->directory)) < 1 || !is_dir($this->directory)) {
@@ -48,6 +55,11 @@ class AndroidAlbumCoverCleanup {
         }
         else {
             echo "Running Cleanup recursively in '" . $this->directory . "' ..." . PHP_EOL;
+            echo PHP_EOL;
+        }
+
+        if ($this->dryRun) {
+            echo "\e[92m" . "[INFO]" . "\e[39m" . " Running in dry mode. Files won't be renamed" . PHP_EOL;
             echo PHP_EOL;
         }
 
@@ -82,7 +94,9 @@ class AndroidAlbumCoverCleanup {
             echo "\e[39mto: ";
             echo "\e[92m" . $this->replacementFiles[$key] . "\e[39m" . PHP_EOL;
             echo PHP_EOL;
-            rename($target, $this->replacementFiles[$key]);
+            if (!$this->dryRun) {
+                rename($target, $this->replacementFiles[$key]);
+            }
 
         }
     }
